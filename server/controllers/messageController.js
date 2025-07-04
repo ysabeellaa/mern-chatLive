@@ -4,7 +4,7 @@ import cloudinary from "../lib/cloudinary.js";
 import {io, userSocketMap} from "../server.js"
 
 //get all users except the logged in user
-export const getUsersForSideBar = async () => {
+export const getUsersForSideBar = async (req, res)  => {
   try {
     const userId = req.user._id;
     const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
@@ -24,15 +24,15 @@ export const getUsersForSideBar = async () => {
       }
     });
     await Promise.all(promisses);
-    res.json({ sucess: true, users: filteredUsers, unseenMessages });
+    res.json({ success: true, users: filteredUsers, unseenMessages });
   } catch (error) {
     console.log(error.message);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
 //get all mesages for selected user
-export const getMessages = async () => {
+export const getMessages = async (req, res)  => {
   try {
     const { id: selectedUserId } = req.params;
     const myId = req.user._id;
@@ -52,10 +52,10 @@ export const getMessages = async () => {
       { senderId: selectedUserId, receiverId: myId },
       { seen: true }
     );
-    res.json({ sucess: true, messages });
+    res.json({ success: true, messages });
   } catch (error) {
     console.log(error.message);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -64,10 +64,10 @@ export const markMessageAsSeen = async (req, res) => {
   try {
     const { id } = req.params;
     await Message.findByIdAndUpdate(id, { seen: true });
-    res.json({ sucess: true });
+    res.json({ success: true });
   } catch {
     console.log(error.message);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -94,9 +94,9 @@ export const sendMessage = async (req, res) => {
     if(receiverSocketId){
         io.timeout(receiverSocketId).emit("newMessage", newMessage)
     }
-    res.json({ sucess: tru, newMessage });
+    res.json({ success: tru, newMessage });
   } catch {
     console.log(error.message);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };

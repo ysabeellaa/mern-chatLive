@@ -47,20 +47,29 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const userData = await User.findOne({ email });
 
-    const isPasswordCorrect = await bcrypt.compare(password, userData.password);
-    const token = generateToken(userData._id);
-
-    if (!isPasswordCorrect) {
-      res.json({
+    if (!userData) {
+      return res.json({
         success: false,
-        message: "Password incorect",
+        message: "User not found 1",
       });
     }
+
+    const isPasswordCorrect = await bcrypt.compare(password, userData.password);
+
+    if (!isPasswordCorrect) {
+      return res.json({
+        success: false,
+        message: "Password incorrect",
+      });
+    }
+
+    const token = generateToken(userData._id);
+
     res.json({
       success: true,
       userData,
       token,
-      message: "Login succesfull",
+      message: "Login successful",
     });
   } catch (error) {
     console.log(error);
@@ -95,9 +104,9 @@ export const updateProfile = async (req, res) => {
       );
     }
 
-    res.json({ sucess: true, user: updatedUser });
+    res.json({ success: true, user: updatedUser });
   } catch (error) {
     console.log(error);
-    res.json({ sucess: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
